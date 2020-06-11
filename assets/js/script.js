@@ -74,6 +74,7 @@ var createTaskEl = function (taskDataObj) {
 
   // Add task 'id' as a custom attribute.
   listItemEl.setAttribute("data-task-id", taskIdCounter);
+  listItemEl.setAttribute("draggable", "true");
 
   // Create div to hold task info and add it to the list item.
   var taskInfoEl = document.createElement("div");
@@ -218,10 +219,65 @@ var taskStatusChangeHandler = function (event) {
   else if (statusValue === "completed") {
     tasksCompletedEl.appendChild(taskSelected);
   }
-
 };
 
+// // // // D R A G   A N D   D R O P // // // // 
+
+var dragTaskHandler = function (event) {
+  var taskId = event.target.getAttribute("data-task-id");
+  event.dataTransfer.setData("text/plain", taskId);
+
+  var getId = event.dataTransfer.getData("text/plain"); // Verify that our dataTransfer property stored the data-task-id attribute.
+  // console.log("getId:", getId, typeof getId);
+}
+
+// Drag-and-Drop Context
+// Because dataTransfer is a property of the drag event, we can access the data-task-id later in the drop event because both drag and drop are of the type DragEvent. In other words, since each action shares the same event type, we can access properties set during dragging later during dropping.
+
+var dropZoneDragHandler = function (event) {
+  var taskListEl = event.target.closest(".task-list");
+  if (taskListEl) {
+    event.preventDefault();
+    taskListEl.setAttribute("style", "background: rgba(68, 233, 255, 0.7); border-style: dashed;");
+  }
+};
+
+// DROP EVENT HANDLER PSEUDO CODE
+// 1. Retrieve the original dragged task item from the dataTransfer property.
+// 2. Reference the destination of the drop as a DOM element.
+// 3. Update the task status of the task item to match the task list.
+// 4. Append the dragged task item to the destination drop zone.
+
+var dropTaskHandler = function (event) {
+  var id = event.dataTransfer.getData("text/plain");
+  var draggableElement = document.querySelector("[data-task-id='" + id + "']");
+  var dropZoneEl = event.target.closest(".task-list"); // Return the corresponding task list element of the drop zone.
+  var statusType = dropZoneEl.id;
+  var statusSelectEl = draggableElement.querySelector("select[name='status-change']"); // Set status of task based on dropZone id
+  if (statusType === "tasks-to-do") {
+    statusSelectEl.selectedIndex = 0;
+  }
+  else if (statusType === "tasks-in-progress") {
+    statusSelectEl.selectedIndex = 1;
+  }
+  else if (statusType === "tasks-completed") {
+    statusSelectEl.selectedIndex = 2;
+  }
+
+  dropZoneEl.removeAttribute("style"); // Remove shading and outline styles.
+  dropZoneEl.appendChild(draggableElement); // Append the draggableElement to its new parent element, dropZoneEl.
+};
+
+var dragLeaveHandler = function (event) {
+  var taskListEl = event.target.closest(".task-list");
+  if (taskListEl) {
+    taskListEl.removeAttribute("style");
+  }
+};
 
 pageContentEl.addEventListener("click", taskButtonHandler);
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
-
+pageContentEl.addEventListener("dragstart", dragTaskHandler); // Use this DOM element to reference the <main> element and delegate the dragstart listener to it.
+pageContentEl.addEventListener("dragover", dropZoneDragHandler);
+pageContentEl.addEventListener("drop", dropTaskHandler);
+pageContentEl.addEventListener("dragleave", dragLeaveHandler); // Remove hover styles once task is dropped.

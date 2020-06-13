@@ -82,13 +82,9 @@ var createTaskEl = function (taskDataObj) {
   var listItemEl = document.createElement("li");
   listItemEl.className = "task-item";
 
-  console.log(taskDataObj);
-  console.log(taskDataObj.status);
-
   // Add task 'id' as a custom attribute.
   listItemEl.setAttribute("data-task-id", taskIdCounter);
   listItemEl.setAttribute("draggable", "true");
-
 
   var taskInfoEl = document.createElement("div"); // Create div to hold task info and add it to the list item.
   taskInfoEl.className = "task-info"; // Assign the appropriate class to said div.
@@ -260,7 +256,6 @@ var dragTaskHandler = function (event) {
   event.dataTransfer.setData("text/plain", taskId);
 
   var getId = event.dataTransfer.getData("text/plain"); // Verify that our dataTransfer property stored the data-task-id attribute.
-  // console.log("getId:", getId, typeof getId);
 }
 
 // Drag-and-Drop Context
@@ -306,7 +301,6 @@ var dropTaskHandler = function (event) {
     }
   }
 
-  console.log(tasks);
   saveTasks() // Add to localStorage.
 
 };
@@ -324,24 +318,11 @@ var saveTasks = function () {
 };
 
 
-// Gets task items from localStorage
-// Converts tasks from the stringified format back into an array of objects
-// Iterates through tasks array and creates task elements on the page from it
-
 var loadTasks = function () {
-  var savedTasks = localStorage.getItem("tasks");
+  // Gets task items from localStorage
+  // Converts tasks from the stringified format back into an array of objects
+  // Iterates through tasks array and creates task elements on the page from it
 
-  if (!savedTasks) {
-    return false;
-  }
-
-  savedTasks = JSON.parse(savedTasks);
-
-  // loop through savedTasks array
-  for (var i = 0; i < savedTasks.length; i++) {
-    // pass each task object into the `createTaskEl()` function
-    createTaskEl(savedTasks[i]);
-  }
 }
 
 pageContentEl.addEventListener("click", taskButtonHandler);
@@ -351,4 +332,4 @@ pageContentEl.addEventListener("dragover", dropZoneDragHandler);
 pageContentEl.addEventListener("drop", dropTaskHandler);
 pageContentEl.addEventListener("dragleave", dragLeaveHandler); // Remove hover styles once task is dropped.
 
-loadTasks();
+
